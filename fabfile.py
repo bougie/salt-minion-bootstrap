@@ -1,6 +1,6 @@
 from fabric.api import run, env, abort, task
 
-SUPPORTED_OS = ['FreeBSD', 'Linux']
+SUPPORTED_OS = ['FreeBSD', 'Debian', 'Ubuntu', 'RedHat']
 CMD = {
     'FreeBSD': {
         'install': 'pkg install'
@@ -11,7 +11,7 @@ CMD = {
     'Ubuntu': {
         'install': 'aptitude install'
     },
-    'Redhat': {
+    'RedHat': {
         'install': 'yum install'
     }
 }
@@ -19,7 +19,7 @@ PACKAGES = {
     'FreeBSD': 'python27',
     'Debian': 'python2.7',
     'Ubuntu': 'python2.7',
-    'Redhat': 'python2.7'
+    'RedHat': 'python2.7'
 }
 
 
