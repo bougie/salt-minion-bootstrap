@@ -1,18 +1,18 @@
-from fabric.api import run, env, abort, task
+from fabric.api import run, env, abort, task, local
 
 SUPPORTED_OS = ['FreeBSD', 'Debian', 'Ubuntu', 'RedHat']
 CMD = {
     'FreeBSD': {
-        'install': 'pkg install'
+        'install': 'pkg install -y'
     },
     'Debian': {
-        'install': 'apt-get install'
+        'install': 'apt-get install -y'
     },
     'Ubuntu': {
-        'install': 'aptitude install'
+        'install': 'aptitude install -y'
     },
     'RedHat': {
-        'install': 'yum install'
+        'install': 'yum install -y'
     }
 }
 PACKAGES = {
@@ -21,6 +21,8 @@ PACKAGES = {
     'Ubuntu': 'python2.7',
     'RedHat': 'python2.7'
 }
+
+env.shell = '/bin/sh -c'
 
 
 def get_os_type():
@@ -43,8 +45,8 @@ def install_python(user=None, password=None, sudo=False):
     if password is not None:
         env.password = password
 
-    os = get_os_type()
-    if os in SUPPORTED_OS:
-        run('%s %s' % (CMD[os], PACKAGES[os]))
+    os_t = get_os_type()
+    if os_t in SUPPORTED_OS:
+        run('%s %s' % (CMD[os_t]['install'], PACKAGES[os_t]))
     else:
-        abort('OS %s is not supported' % (os,))
+        abort('OS %s is not supported' % (os_t,))
