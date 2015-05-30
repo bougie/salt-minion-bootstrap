@@ -1,4 +1,5 @@
 import os
+import yaml
 
 from fabric.api import run, env, abort, task, local
 
@@ -27,17 +28,29 @@ PACKAGES = {
 env.shell = '/bin/sh -c'
 
 
-def get_os_type():
-    os_t = run('uname')
-    if os_t == 'Linux':
-        if not run('where apt-get').failed:
-            os_t = 'Debian'
-        elif not run('where aptitude').failed:
-            os_t = 'Ubuntu'
-        elif not run('where apt-get').failed:
-            os_t = 'RedHat'
+def load_config(os_typeype):
+    CWD = os.path.dirname(os.path.realpath(__file__))
+    try:
+        with open(os.path.join(CWD, 'config.yml'), 'r') as f:
+            return yaml.load(f)[os_typeype]
+    except IOError:
+        abort('The config file config.yml in directory %s does not exist' % (
+            CWD,))
+    except:
+        abort('Error while loading config file')
 
-    return os_t
+
+def get_os_type():
+    os_type = run('uname')
+    if os_type == 'Linux':
+        if not run('where apt-get').failed:
+            os_type = 'Debian'
+        elif not run('where aptitude').failed:
+            os_type = 'Ubuntu'
+        elif not run('where apt-get').failed:
+            os_type = 'RedHat'
+
+    return os_type
 
 
 def fill_env(**kwargs):
@@ -52,11 +65,11 @@ def install_python(user=None, password=None, sudo=False):
 
     fill_env(user=user, password=password)
 
-    os_t = get_os_type()
-    if os_t in SUPPORTED_OS:
-        run('%s %s' % (CMD[os_t]['install'], PACKAGES[os_t]))
+    os_type = get_os_type()
+    if os_type in SUPPORTED_OS:
+        run('%s %s' % (CMD[os_type]['install'], PACKAGES[os_type]))
     else:
-        abort('OS %s is not supported' % (os_t,))
+        abort('OS %s is not supported' % (os_type,))
 
 
 @task
@@ -70,14 +83,20 @@ def install_keys(user=None, password=None, sudo=False):
     remote_user = 'root'
     # master group of remote_user
     remote_group = 'root'
+    # salt master ssh public key
+    pki_path = '/etc/salt/pki/master/ssh/salt-ssh.rsa.pub'
 
-    os_t = get_os_type()
-    if os_t in SUPPORTED_OS:
-        if os_t == 'FreeBSD':
-            pki_path = '/usr/local/etc/salt/pki/master/ssh/salt-ssh.rsa.pub'
-            remote_group = 'wheel'
-        else:
-            pki_path = '/etc/salt/pki/master/ssh/salt-ssh.rsa.pub'
+    os_type = get_os_type()
+    if os_type in SUPPORTED_OS:
+        config = load_config(os_type)
+
+        # override default values with values in config files
+        if 'pki_path' in config:
+            pki_path = config['pki_path']
+        if 'key_remote_user' in config:
+            remote_user = config['key_remote_user']
+        if 'key_remote_group' in config:
+            remote_group = config['key_remote_group']
 
         if remote_user == 'root':
             home_dir = os.path.join('/', remote_user)

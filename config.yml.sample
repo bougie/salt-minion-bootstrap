@@ -1,0 +1,4 @@
+FreeBSD:
+  pki_path: /usr/local/etc/salt/pki/master/ssh/salt-ssh.rsa.pub
+  key_remote_user: root
+  key_remote_group: wheel
