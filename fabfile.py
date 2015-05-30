@@ -47,7 +47,7 @@ def get_os_type():
             os_type = 'Debian'
         elif not run('where aptitude').failed:
             os_type = 'Ubuntu'
-        elif not run('where apt-get').failed:
+        elif not run('where yum').failed:
             os_type = 'RedHat'
 
     return os_type
