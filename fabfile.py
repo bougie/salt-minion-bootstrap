@@ -42,7 +42,8 @@ def get_os_type():
 
 def fill_env(**kwargs):
     for key, value in kwargs.items():
-        setattr(env, key, value)
+        if value is not None:
+            setattr(env, key, value)
 
 
 @task
