@@ -42,6 +42,8 @@ def get_os_type():
 
 @task
 def install_python(user=None, password=None, sudo=False):
+    """install python interpreter on the remote server"""
+
     if user is not None:
         env.user = user
     if password is not None:
@@ -56,6 +58,9 @@ def install_python(user=None, password=None, sudo=False):
 
 @task
 def install_keys(user=None, password=None, sudo=False):
+    """Add the salt master ssh key to the authorized_keys list on the
+    remote server"""
+
     if user is not None:
         env.user = user
     if password is not None:
