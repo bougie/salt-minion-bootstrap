@@ -40,14 +40,16 @@ def get_os_type():
     return os_t
 
 
+def fill_env(**kwargs):
+    for key, value in kwargs.items():
+        setattr(env, key, value)
+
+
 @task
 def install_python(user=None, password=None, sudo=False):
     """install python interpreter on the remote server"""
 
-    if user is not None:
-        env.user = user
-    if password is not None:
-        env.password = password
+    fill_env(user=user, password=password)
 
     os_t = get_os_type()
     if os_t in SUPPORTED_OS:
@@ -61,10 +63,7 @@ def install_keys(user=None, password=None, sudo=False):
     """Add the salt master ssh key to the authorized_keys list on the
     remote server"""
 
-    if user is not None:
-        env.user = user
-    if password is not None:
-        env.password = password
+    fill_env(user=user, password=password)
 
     # user handling salt ssh key
     remote_user = 'root'
